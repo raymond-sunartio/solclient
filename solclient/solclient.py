@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 #
 # The solclient library
 #
-_solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__))+ '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
+_solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */
