@@ -1,13 +1,14 @@
 from ctypes import *
 import inspect
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 #
 # The solclient library
 #
-_solClient = windll("./solclient-7.5.0.7/bin/Win64/libsolclient.dll")
+_solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__))+ '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */
@@ -319,7 +320,7 @@ def _solClient_subCodeToString(subCode):
 #    char errorStr[SOLCLIENT_ERRORINFO_STR_SIZE];                              /**< An information string for certain types of subcodes (empty string, if not used). */
 #  } solClient_errorInfo_t, *solClient_errorInfo_pt; /**< A pointer to a ::solClient_errorInfo structure returned from ::solClient_getLastErrorInfo() .*/
 #
-def solClient_errorInfo_t(Structure):
+class solClient_errorInfo_t(Structure):
     _fields_ = [
         ('subCode', solClient_subCode_t),
         ('responseCode', solClient_session_responseCode_t),
@@ -337,7 +338,7 @@ def _solClient_getLastErrorInfo():
     _solClient.solClient_getLastErrorInfo.argtypes = [
         c_int
     ]
-    lastErrorInfo = _solClient.solClient_getLastErrorInfo().contents
+    return _solClient.solClient_getLastErrorInfo().contents
 
 
 #
