@@ -208,6 +208,17 @@ solClient_session_responseCode_t = c_ulong
 solClient_msgId_t = c_ulonglong
 solClient_modifyPropFlags_t = c_ulong
 
+#
+# #define SOLCLIENT_SESSION_PROP_HOST                          "SESSION_HOST"     /**< The IP address (or host name) to connect to. @ref host-list "Multiple entries" (up to ::SOLCLIENT_SESSION_PROP_MAX_HOSTS) are allowed, separated by commas. @ref host-entry "The entry for the SOLCLIENT_SESSION_PROP_HOST property should provide a protocol, host, and port". See @ref host-list "Configuring Multiple Hosts for Redundancy and Failover" for a discussion of Guaranteed Messaging considerations. May be set as an environment variable (See @ref SessionProps). Default: ::SOLCLIENT_SESSION_PROP_DEFAULT_HOST */
+# #define SOLCLIENT_SESSION_PROP_VPN_NAME                      "SESSION_VPN_NAME"    /**< The name of the Message VPN to attempt to join when connecting to an appliance running SolOS-TR. Default: ::SOLCLIENT_SESSION_PROP_DEFAULT_VPN_NAME */
+# #define SOLCLIENT_SESSION_PROP_USERNAME                      "SESSION_USERNAME" /**< The username required for authentication. Default: ::SOLCLIENT_SESSION_PROP_DEFAULT_USERNAME */
+# #define SOLCLIENT_SESSION_PROP_PASSWORD                      "SESSION_PASSWORD" /**< The password required for authentication. May be set as an environment variable (See @ref SessionProps). Default: ::SOLCLIENT_SESSION_PROP_DEFAULT_PASSWORD */
+#
+SOLCLIENT_SESSION_PROP_HOST = 'SESSION_HOST'
+SOLCLIENT_SESSION_PROP_VPN_NAME = 'SESSION_VPN_NAME'
+SOLCLIENT_SESSION_PROP_USERNAME = 'SESSION_USERNAME'
+SOLCLIENT_SESSION_PROP_PASSWORD = 'SESSION_PASSWORD'
+
 
 #
 #  typedef struct solClient_session_eventCallbackInfo
@@ -279,6 +290,11 @@ class solClient_context_createRegisterFdFuncInfo_t(Structure):
         ('user_p', c_void_p)
     ]
 
+    def __init__(self, regFdFunc_p=solClient_context_registerFdFunc_t(0), unregFdFunc_p=solClient_context_unregisterFdFunc_t(0), user_p=None):
+        self.regFdFunc_p = regFdFunc_p
+        self.unregFdFunc_p = unregFdFunc_p
+        self.user_p = user_p
+
 
 #
 #  typedef struct solClient_context_createFuncInfo
@@ -290,6 +306,102 @@ class solClient_context_createFuncInfo_t(Structure):
     _fields_ = [
         ('regFdInfo', solClient_context_createRegisterFdFuncInfo_t)
     ]
+
+    def __init__(self, regFdInfo):
+        self.regFdInfo = regFdInfo
+
+
+#
+# #define SOLCLIENT_CONTEXT_CREATEFUNC_INITIALIZER {{NULL, NULL, NULL}}
+#
+SOLCLIENT_CONTEXT_CREATEFUNC_INITIALIZER = solClient_context_createFuncInfo_t(
+    regFdInfo=solClient_context_createRegisterFdFuncInfo_t()
+)
+
+
+#
+#  typedef struct solClient_session_createRxCallbackFuncInfo
+#  {
+#    void *callback_p;
+#    void *user_p;
+#  } solClient_session_createRxCallbackFuncInfo_t;
+#
+class solClient_session_createRxCallbackFuncInfo_t(Structure):
+    _fields_ = [
+        ('callback_p', c_void_p),
+        ('user_p', c_void_p)
+    ]
+
+    def __init__(self, callback_p=None, user_p=None):
+        self.callback_p = callback_p
+        self.user_p = user_p
+
+
+#
+#  typedef struct solClient_session_createEventCallbackFuncInfo
+#  {
+#    solClient_session_eventCallbackFunc_t callback_p;
+#    void *user_p;
+#  } solClient_session_createEventCallbackFuncInfo_t;
+#
+class solClient_session_createEventCallbackFuncInfo_t(Structure):
+    _fields_ = [
+        ('callback_p', solClient_session_eventCallbackFunc_t),
+        ('user_p', c_void_p)
+    ]
+
+    def __init__(self, callback_p=solClient_session_eventCallbackFunc_t(0), user_p=None):
+        self.callback_p = callback_p
+        self.user_p = user_p
+
+
+#
+#  typedef struct solClient_session_createRxMsgCallbackFuncInfo
+#  {
+#    solClient_session_rxMsgCallbackFunc_t callback_p;
+#    void *user_p;
+#  } solClient_session_createRxMsgCallbackFuncInfo_t;
+#
+class solClient_session_createRxMsgCallbackFuncInfo_t(Structure):
+    _fields_ = [
+        ('callback_p', solClient_session_rxMsgCallbackFunc_t),
+        ('user_p', c_void_p)
+    ]
+
+    def __init__(self, callback_p=solClient_session_rxMsgCallbackFunc_t(0), user_p=None):
+        self.callback_p = callback_p
+        self.user_p = user_p
+
+
+#
+#  typedef struct solClient_session_createFuncInfo
+#  {
+#    solClient_session_createRxCallbackFuncInfo_t    rxInfo;
+#    solClient_session_createEventCallbackFuncInfo_t eventInfo;
+#    solClient_session_createRxMsgCallbackFuncInfo_t rxMsgInfo;
+#  } solClient_session_createFuncInfo_t;
+#
+class solClient_session_createFuncInfo_t(Structure):
+    _fields_ = [
+        ('rxInfo', solClient_session_createRxCallbackFuncInfo_t),
+        ('eventInfo', solClient_session_createEventCallbackFuncInfo_t),
+        ('rxMsgInfo', solClient_session_createRxMsgCallbackFuncInfo_t)
+    ]
+
+    def __init__(self, rxInfo, eventInfo, rxMsgInfo):
+        self.rxInfo = rxInfo
+        self.eventInfo = eventInfo
+        self.rxMsgInfo = rxMsgInfo
+
+
+#
+# #define SOLCLIENT_SESSION_CREATEFUNC_INITIALIZER {{NULL,NULL},{NULL,NULL},{NULL,NULL}}
+#
+SOLCLIENT_SESSION_CREATEFUNC_INITIALIZER = solClient_session_createFuncInfo_t(
+    rxInfo=solClient_session_createRxCallbackFuncInfo_t(),
+    eventInfo=solClient_session_createEventCallbackFuncInfo_t(),
+    rxMsgInfo=solClient_session_createRxMsgCallbackFuncInfo_t()
+)
 
 #
 #  typedef enum solClient_subCode
@@ -335,22 +447,18 @@ solClient_errorInfo_pt = POINTER(solClient_errorInfo_t)
 #
 def _solClient_getLastErrorInfo():
     _solClient.solClient_getLastErrorInfo.restype = solClient_errorInfo_pt
-    _solClient.solClient_getLastErrorInfo.argtypes = [
-        c_int
-    ]
     return _solClient.solClient_getLastErrorInfo().contents
 
 
 #
-# _logAndRaise
+# _logAndRaiseError
 #   Log error and raise exception
 #
-def _logAndRaise():
+def _logAndRaiseError():
     caller = inspect.stack()[1][3]
     lastErrorInfo = _solClient_getLastErrorInfo()
-    errorStr = lastErrorInfo.errorStr
     subCodeStr = _solClient_subCodeToString(lastErrorInfo.subCode)
-    errorMsg = 'Error encountered in {} - errorStr={}, subCode={}'.format(caller, errorStr, subCodeStr)
+    errorMsg = 'Error encountered in {} - {}'.format(caller, subCodeStr)
     logger.error(errorMsg)
     raise RuntimeError(errorMsg)
 
@@ -367,7 +475,7 @@ def solClient_initialize(initialLogLevel=SOLCLIENT_LOG_DEFAULT_FILTER, props=Non
         solClient_propertyArray_pt
     ]
     if _solClient.solClient_initialize(initialLogLevel, props) != SOLCLIENT_OK:
-        _logAndRaise()
+        _logAndRaiseError()
 
 
 #
@@ -385,4 +493,44 @@ def solClient_context_create(props, opaqueContext_p, funcInfo_p):
         POINTER(solClient_context_createFuncInfo_t),
         c_size_t
     ]
-    pass
+    if _solClient.solClient_context_create(props, byref(opaqueContext_p), byref(funcInfo_p), sizeof(funcInfo_p)) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+#  solClient_dllExport solClient_returnCode_t
+#    solClient_session_create (solClient_propertyArray_pt props,
+#                              solClient_opaqueContext_pt opaqueContext_p,
+#                              solClient_opaqueSession_pt * opaqueSession_p,
+#                              solClient_session_createFuncInfo_t * funcInfo_p,
+#                              size_t funcInfoSize);
+#
+def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p):
+    _solClient.solClient_session_create.restype = solClient_returnCode_t
+    _solClient.solClient_session_create.argtypes = [
+        solClient_propertyArray_pt,
+        solClient_opaqueContext_pt,
+        POINTER(solClient_opaqueSession_pt),
+        POINTER(solClient_session_createFuncInfo_t),
+        c_size_t
+    ]
+
+    propsCount = len(props.keys())
+    _props = (c_char_p * (2 * propsCount + 1))()
+    index = 0
+    for item in props.items():
+        _props[index] = c_char_p('key'.encode('utf-8'))
+        index += 1
+        _props[index] = c_char_p('value'.encode('utf-8'))
+        index += 1
+    _props[index] = c_char_p(None)
+
+    if _solClient.solClient_session_create(_props, opaqueContext_p, byref(opaqueSession_p), byref(funcInfo_p), sizeof(funcInfo_p)) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+# solClient_dllExport extern const char *_solClient_contextPropsDefaultWithCreateThread[]; /* Do not use directly; use SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD */
+# #define SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD ((solClient_propertyArray_pt )_solClient_contextPropsDefaultWithCreateThread) /**< Use with ::solClient_context_create() to create a Context in which the automatic Context thread is automatically created and all other properties are set with default values. */
+#
+SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD = pointer(c_char_p.in_dll(_solClient, '_solClient_contextPropsDefaultWithCreateThread'))

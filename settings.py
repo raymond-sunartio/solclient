@@ -1,9 +1,13 @@
-LOGGING = {
+SOLACE_HOST = ''
+SOLACE_VPN = ''
+SOLACE_USERNAME = ''
+
+LOGGING_SUBSCRIBE = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'simple': {
-            'format': '%(asctime)s - %(name)s - [%(filename)s:%(lineno)d] - %(levelname)-8s - %(message)s',
+            'format': '%(name)s %(levelname)s %(asctime)s %(filename)s:%(lineno)d - %(message)s',
         },
     },
     'handlers': {
@@ -17,7 +21,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'simple',
-            'filename': './logs/solClient.log',
+            'filename': './logs/subscribe.log',
             'maxBytes': 8192,
             'backupCount': 10,
             'encoding': 'utf8',
@@ -26,7 +30,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'ERROR',
             'formatter': 'simple',
-            'filename': './logs/solClient.error.log',
+            'filename': './logs/subscribe.error.log',
             'maxBytes': 8192,
             'backupCount': 10,
             'encoding': 'utf8',
@@ -35,7 +39,7 @@ LOGGING = {
     'loggers': {
     },
     'root': {
-        'level': 'INFO',
+        'level': 'DEBUG',
         'handlers': ['console', 'info_file_handler', 'error_file_handler'],
     },
 }
