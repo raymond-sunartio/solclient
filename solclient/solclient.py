@@ -8,7 +8,12 @@ logger = logging.getLogger(__name__)
 #
 # The solclient library
 #
-_solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
+if os.name == 'nt':
+    _solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
+elif os.name == 'posix':
+    _solClient = cdll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/lib/libsolclient.so')
+else:
+    raise RuntimeError('OS \'{}\' not supported'.format(os.name))
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */
@@ -266,13 +271,22 @@ solClient_flow_eventCallbackInfo_pt = POINTER(solClient_flow_eventCallbackInfo_t
 #  typedef solClient_returnCode_t (*solClient_context_registerFdFunc_t) (void *app_p, solClient_fd_t fd, solClient_fdEvent_t events, solClient_context_fdCallbackFunc_t callback_p, void *user_p);
 #  typedef solClient_returnCode_t (*solClient_context_unregisterFdFunc_t) (void *app_p, solClient_fd_t fd, solClient_fdEvent_t events);
 #
-solClient_session_eventCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueSession_pt, solClient_session_eventCallbackInfo_pt, c_void_p)
-solClient_flow_eventCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueFlow_pt, solClient_flow_eventCallbackInfo_pt, c_void_p)
-solClient_context_fdCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueContext_pt, solClient_fd_t, solClient_fdEvent_t, c_void_p)
-solClient_session_rxMsgCallbackFunc_t = WINFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueSession_pt, solClient_opaqueMsg_pt, solClient_opaqueMsg_pt, c_void_p)
-solClient_flow_rxMsgCallbackFunc_t = WINFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueFlow_pt, solClient_opaqueMsg_pt, c_void_p)
-solClient_context_registerFdFunc_t = WINFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t, solClient_context_fdCallbackFunc_t, c_void_p)
-solClient_context_unregisterFdFunc_t = WINFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t)
+if os.name == 'nt':
+    solClient_session_eventCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueSession_pt, solClient_session_eventCallbackInfo_pt, c_void_p)
+    solClient_flow_eventCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueFlow_pt, solClient_flow_eventCallbackInfo_pt, c_void_p)
+    solClient_context_fdCallbackFunc_t = WINFUNCTYPE(c_int, solClient_opaqueContext_pt, solClient_fd_t, solClient_fdEvent_t, c_void_p)
+    solClient_session_rxMsgCallbackFunc_t = WINFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueSession_pt, solClient_opaqueMsg_pt, solClient_opaqueMsg_pt, c_void_p)
+    solClient_flow_rxMsgCallbackFunc_t = WINFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueFlow_pt, solClient_opaqueMsg_pt, c_void_p)
+    solClient_context_registerFdFunc_t = WINFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t, solClient_context_fdCallbackFunc_t, c_void_p)
+    solClient_context_unregisterFdFunc_t = WINFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t)
+elif os.name == 'posix':
+    solClient_session_eventCallbackFunc_t = CFUNCTYPE(c_int, solClient_opaqueSession_pt, solClient_session_eventCallbackInfo_pt, c_void_p)
+    solClient_flow_eventCallbackFunc_t = CFUNCTYPE(c_int, solClient_opaqueFlow_pt, solClient_flow_eventCallbackInfo_pt, c_void_p)
+    solClient_context_fdCallbackFunc_t = CFUNCTYPE(c_int, solClient_opaqueContext_pt, solClient_fd_t, solClient_fdEvent_t, c_void_p)
+    solClient_session_rxMsgCallbackFunc_t = CFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueSession_pt, solClient_opaqueMsg_pt, solClient_opaqueMsg_pt, c_void_p)
+    solClient_flow_rxMsgCallbackFunc_t = CFUNCTYPE(solClient_rxMsgCallback_returnCode_t, solClient_opaqueFlow_pt, solClient_opaqueMsg_pt, c_void_p)
+    solClient_context_registerFdFunc_t = CFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t, solClient_context_fdCallbackFunc_t, c_void_p)
+    solClient_context_unregisterFdFunc_t = CFUNCTYPE(solClient_returnCode_t, c_void_p, solClient_fd_t, solClient_fdEvent_t)
 
 
 #
@@ -416,12 +430,18 @@ solClient_subCode_t = c_int
 #  solClient_dllExport const char
 #    *solClient_subCodeToString (solClient_subCode_t subCode);
 #
-def _solClient_subCodeToString(subCode):
+def solClient_subCodeToString(subCode):
     _solClient.solClient_subCodeToString.restype = c_char_p
     _solClient.solClient_subCodeToString.argtypes = [
         solClient_subCode_t
     ]
     return _solClient.solClient_subCodeToString(subCode)
+
+
+#
+# #define SOLCLIENT_ERRORINFO_STR_SIZE (256) /**< The maximum size of error string including terminating NULL character. */
+#
+SOLCLIENT_ERRORINFO_STR_SIZE = 256
 
 
 #
@@ -436,7 +456,7 @@ class solClient_errorInfo_t(Structure):
     _fields_ = [
         ('subCode', solClient_subCode_t),
         ('responseCode', solClient_session_responseCode_t),
-        ('errorStr', c_char_p)
+        ('errorStr', (c_char * SOLCLIENT_ERRORINFO_STR_SIZE))
     ]
 solClient_errorInfo_pt = POINTER(solClient_errorInfo_t)
 
@@ -445,7 +465,7 @@ solClient_errorInfo_pt = POINTER(solClient_errorInfo_t)
 #  solClient_dllExport solClient_errorInfo_pt
 #    solClient_getLastErrorInfo (void);
 #
-def _solClient_getLastErrorInfo():
+def solClient_getLastErrorInfo():
     _solClient.solClient_getLastErrorInfo.restype = solClient_errorInfo_pt
     return _solClient.solClient_getLastErrorInfo().contents
 
@@ -456,9 +476,10 @@ def _solClient_getLastErrorInfo():
 #
 def _logAndRaiseError():
     caller = inspect.stack()[1][3]
-    lastErrorInfo = _solClient_getLastErrorInfo()
-    subCodeStr = _solClient_subCodeToString(lastErrorInfo.subCode)
-    errorMsg = 'Error encountered in {} - {}'.format(caller, subCodeStr)
+    lastErrorInfo = solClient_getLastErrorInfo()
+    errorStr = lastErrorInfo.errorStr
+    subCodeStr = solClient_subCodeToString(lastErrorInfo.subCode)
+    errorMsg = 'Error encountered in {} - errorStr={}, subCode={}'.format(caller, errorStr, subCodeStr)
     logger.error(errorMsg)
     raise RuntimeError(errorMsg)
 
@@ -530,7 +551,43 @@ def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p
 
 
 #
+#  solClient_dllExport solClient_returnCode_t
+#    solClient_session_connect (solClient_opaqueSession_pt opaqueSession_p);
+#
+def solClient_session_connect(opaqueSession_p):
+    _solClient.solClient_session_connect.restype = solClient_returnCode_t
+    _solClient.solClient_session_connect.argtypes = [
+        solClient_opaqueSession_pt
+    ]
+    if _solClient.solClient_session_connect(opaqueSession_p) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+#  solClient_dllExport solClient_returnCode_t
+#    solClient_session_disconnect (solClient_opaqueSession_pt opaqueSession_p);
+#
+def solClient_session_disconnect(opaqueSession_p):
+    _solClient.solClient_session_disconnect.restype = solClient_returnCode_t
+    _solClient.solClient_session_disconnect.argtypes = [
+        solClient_opaqueSession_pt
+    ]
+    if _solClient.solClient_session_disconnect(opaqueSession_p) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+#  solClient_dllExport solClient_returnCode_t solClient_cleanup (void);
+#
+def solClient_cleanup():
+    _solClient.solClient_cleanup.restype = solClient_returnCode_t
+    if _solClient.solClient_cleanup() != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
 # solClient_dllExport extern const char *_solClient_contextPropsDefaultWithCreateThread[]; /* Do not use directly; use SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD */
 # #define SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD ((solClient_propertyArray_pt )_solClient_contextPropsDefaultWithCreateThread) /**< Use with ::solClient_context_create() to create a Context in which the automatic Context thread is automatically created and all other properties are set with default values. */
 #
 SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD = pointer(c_char_p.in_dll(_solClient, '_solClient_contextPropsDefaultWithCreateThread'))
+
