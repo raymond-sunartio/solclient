@@ -1,13 +1,13 @@
-SOLACE_HOST = ''
-SOLACE_VPN = ''
-SOLACE_USERNAME = ''
+SOLACE_HOST = 'localhost:5555'
+SOLACE_VPN = 'some_vpn'
+SOLACE_USERNAME = 'some_user'
 
 LOGGING_SUBSCRIBE = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'simple': {
-            'format': '%(name)s %(levelname)s %(asctime)s %(filename)s:%(lineno)d - %(message)s',
+            'format': '%(name)s %(levelname)-8s %(asctime)s %(filename)s:%(lineno)d - %(message)s',
         },
     },
     'handlers': {
@@ -43,3 +43,4 @@ LOGGING_SUBSCRIBE = {
         'handlers': ['console', 'info_file_handler', 'error_file_handler'],
     },
 }
+
