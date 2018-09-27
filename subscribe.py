@@ -35,7 +35,7 @@ def main():
     logging.config.dictConfig(settings.LOGGING_SUBSCRIBE)
 
     logger.debug('initializing solClient...')
-    solclient.solClient_initialize(initialLogLevel=solclient.SOLCLIENT_LOG_DEBUG)
+    solclient.solClient_initialize()
     logger.info('solClient initialized')
 
     logger.debug('creating solClient context...')
@@ -50,9 +50,10 @@ def main():
 
     logger.debug('creating solClient session...')
     sessionProps = {
-        solclient.SOLCLIENT_SESSION_PROP_HOST: settings.SOLACE_HOST,
-        solclient.SOLCLIENT_SESSION_PROP_VPN_NAME: settings.SOLACE_VPN,
-        solclient.SOLCLIENT_SESSION_PROP_USERNAME: settings.SOLACE_USERNAME,
+        solclient.SOLCLIENT_SESSION_PROP_HOST: settings.SOLCLIENT_SESSION_PROP_HOST,
+        solclient.SOLCLIENT_SESSION_PROP_VPN_NAME: settings.SOLCLIENT_SESSION_PROP_VPN_NAME,
+        solclient.SOLCLIENT_SESSION_PROP_AUTHENTICATION_SCHEME: settings.SOLCLIENT_SESSION_PROP_AUTHENTICATION_SCHEME,
+        solclient.SOLCLIENT_SESSION_PROP_KRB_SERVICE_NAME: solclient.SOLCLIENT_SESSION_PROP_KRB_SERVICE_NAME,
     }
     session_p = solclient.solClient_opaqueSession_pt()
     sessionFuncInfo = solclient.SOLCLIENT_SESSION_CREATEFUNC_INITIALIZER

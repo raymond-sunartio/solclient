@@ -223,6 +223,8 @@ SOLCLIENT_SESSION_PROP_HOST = 'SESSION_HOST'
 SOLCLIENT_SESSION_PROP_VPN_NAME = 'SESSION_VPN_NAME'
 SOLCLIENT_SESSION_PROP_USERNAME = 'SESSION_USERNAME'
 SOLCLIENT_SESSION_PROP_PASSWORD = 'SESSION_PASSWORD'
+SOLCLIENT_SESSION_PROP_AUTHENTICATION_SCHEME = 'SESSION_AUTHENTICATION_SCHEME'
+SOLCLIENT_SESSION_PROP_KRB_SERVICE_NAME = 'SESSION_KRB_SERVICE_NAME'
 
 
 #
@@ -540,9 +542,11 @@ def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p
     _props = (c_char_p * (2 * propsCount + 1))()
     index = 0
     for item in props.items():
-        _props[index] = c_char_p('key'.encode('utf-8'))
+        _props[index] = c_char_p(item[0].encode('utf-8'))
+        logger.debug('_props[{}]={}'.format(index, _props[index]))
         index += 1
-        _props[index] = c_char_p('value'.encode('utf-8'))
+        _props[index] = c_char_p(item[1].encode('utf-8'))
+        logger.debug('_props[{}]={}'.format(index, _props[index]))
         index += 1
     _props[index] = c_char_p(None)
 
