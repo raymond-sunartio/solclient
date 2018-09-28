@@ -597,7 +597,10 @@ def solClient_session_topicSubscribe(opaqueSession_p, topicSubscription_p):
         solClient_opaqueSession_pt,
         c_char_p
     ]
-    if _solClient.solClient_session_topicSubscribe(opaqueSession_p, c_char_p(topicSubscription_p)) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicSubscribe(
+            opaqueSession_p,
+            c_char_p(topicSubscription_p.encode('utf-8'))
+    ) != SOLCLIENT_OK:
         _logAndRaiseError()
 
 
@@ -612,7 +615,10 @@ def solClient_session_topicUnsubscribe(opaqueSession_p, topicSubscription_p):
         solClient_opaqueSession_pt,
         c_char_p
     ]
-    if _solClient.solClient_session_topicUnsubscribe(opaqueSession_p, c_char_p(topicSubscription_p)) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicUnsubscribe(
+            opaqueSession_p,
+            c_char_p(topicSubscription_p.encode('utf-8'))
+    ) != SOLCLIENT_OK:
         _logAndRaiseError()
 
 
