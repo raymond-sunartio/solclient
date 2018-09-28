@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 #
 def messageReceiveCallback(opaqueSession_p, msg_p, user_p):
     logger.debug('messageReceiveCallback called')
+    return 0
 
 
 #
