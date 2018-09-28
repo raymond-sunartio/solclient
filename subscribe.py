@@ -1,3 +1,4 @@
+import argparse
 import logging
 import logging.config
 import settings
@@ -37,6 +38,11 @@ def eventCallback(opaqueSession_p, eventInfo_p, user_p):
 def main():
     logging.config.dictConfig(settings.LOGGING_SUBSCRIBE)
 
+    parser = argparse.ArgumentParser(description='Subscribes to a solace topic.')
+    parser.add_argument('topic', help='solace topic to subscribe to')
+    args = parser.parse_args()
+    logger.info('command line args=[{}]'.format(args))
+
     logger.debug('initializing solClient...')
     solclient.solClient_initialize()
     logger.info('solClient initialized')
@@ -74,10 +80,9 @@ def main():
     solclient.solClient_session_connect(session_p)
     logger.info('solClient session connected')
 
-    topic = 'some_topic'
-    logger.debug('subscribing to solClient topic [{}]...'.format(topic))
-    solclient.solClient_session_topicSubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, topic)
-    logger.info('subscribed to solClient topic [{}]'.format(topic))
+    logger.debug('subscribing to solClient topic [{}]...'.format(args.topic))
+    solclient.solClient_session_topicSubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, args.topic)
+    logger.info('subscribed to solClient topic [{}]'.format(args.topic))
 
     while True:
         try:
@@ -86,9 +91,9 @@ def main():
             logger.debug("KeyboardInterrupt detected")
             break
 
-    logger.debug('UNsubscribing to solClient topic [{}]...'.format(topic))
-    solclient.solClient_session_topicUnsubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, topic)
-    logger.info('UNsubscribed to solClient topic [{}]'.format(topic))
+    logger.debug('UNsubscribing to solClient topic [{}]...'.format(args.topic))
+    solclient.solClient_session_topicUnsubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, args.topic)
+    logger.info('UNsubscribed to solClient topic [{}]'.format(args.topic))
 
     logger.debug('disconnecting solClient session...')
     solclient.solClient_session_disconnect(session_p)
