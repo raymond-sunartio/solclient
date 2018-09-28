@@ -1,8 +1,9 @@
 import logging
 import logging.config
 import settings
-from solclient import solclient
 import time
+
+from solclient import solclient
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ def main():
 
     topic = 'some_topic'
     logger.debug('subscribing to solClient topic [{}]...'.format(topic))
-    solclient.solClient_session_topicSubscribe(session_p, topic)
+    solclient.solClient_session_topicSubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, topic)
     logger.info('subscribed to solClient topic [{}]'.format(topic))
 
     while True:
@@ -86,7 +87,7 @@ def main():
             break
 
     logger.debug('UNsubscribing to solClient topic [{}]...'.format(topic))
-    solclient.solClient_session_topicUnsubscribe(session_p, topic)
+    solclient.solClient_session_topicUnsubscribeExt(session_p, solclient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, topic)
     logger.info('UNsubscribed to solClient topic [{}]'.format(topic))
 
     logger.debug('disconnecting solClient session...')

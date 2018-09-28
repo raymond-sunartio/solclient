@@ -192,6 +192,17 @@ solClient_rxMsgCallback_returnCode_t = c_int
 ) = map(solClient_rxMsgCallback_returnCode_t, range(2))
 
 #
+# #define SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM        (0x02) /**< The subscribe/unsubscribe call blocks until a confirmation is received. @see @ref blocking-context "Threading Effects on Blocking Modes" for more information about setting subscribe flags in the Context thread.*/
+# #define SOLCLIENT_SUBSCRIBE_FLAGS_RX_ALL_DELIVER_TO_ONE (0x04) /**< This flag, when present in a subscription ADD request, overrides the deliver-to-one property in a message (see ::solClient_msg_setDeliverToOne()) - If the Topic in the message matches, it is delivered to clients with ::SOLCLIENT_SUBSCRIBE_FLAGS_RX_ALL_DELIVER_TO_ONE set, in addition to any one client that is subscribed to the Topic without this override. */
+# #define SOLCLIENT_SUBSCRIBE_FLAGS_LOCAL_DISPATCH_ONLY   (0x08) /**< For the @ref topic-dispatch "topic dispatch" feature, this flag indicates the subscription should only be added to the dispatch table and should not be added to the appliance. */
+# #define SOLCLIENT_SUBSCRIBE_FLAGS_REQUEST_CONFIRM       (0x10) /**< Requests a confirmation for the subscribe/unsubscribe operation. This bit is implied by ::SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM. If ::SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM is not set when this flag is set, then a confirmation event will be issued through the Session event callback procedure. */
+#
+SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM = 2
+SOLCLIENT_SUBSCRIBE_FLAGS_RX_ALL_DELIVER_TO_ONE = 4
+SOLCLIENT_SUBSCRIBE_FLAGS_LOCAL_DISPATCH_ONLY = 8
+SOLCLIENT_SUBSCRIBE_FLAGS_REQUEST_CONFIRM = 16
+
+#
 # #ifdef WIN32
 #   typedef SOCKET solClient_fd_t;    /**< Type for a file descriptor. */
 # #else
@@ -606,6 +617,28 @@ def solClient_session_topicSubscribe(opaqueSession_p, topicSubscription_p):
 
 #
 #  solClient_dllExport solClient_returnCode_t
+#    solClient_session_topicSubscribeExt (
+#                                      solClient_opaqueSession_pt opaqueSession_p,
+#                                      solClient_subscribeFlags_t flags,
+#                                      const char *topicSubscription_p);
+#
+def solClient_session_topicSubscribeExt(opaqueSession_p, flags, topicSubscription_p):
+    _solClient.solClient_session_topicSubscribeExt.restype = solClient_returnCode_t
+    _solClient.solClient_session_topicSubscribeExt.argtypes = [
+        solClient_opaqueSession_pt,
+        solClient_subscribeFlags_t,
+        c_char_p
+    ]
+    if _solClient.solClient_session_topicSubscribeExt(
+            opaqueSession_p,
+            flags,
+            c_char_p(topicSubscription_p.encode('utf-8'))
+    ) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+#  solClient_dllExport solClient_returnCode_t
 #    solClient_session_topicUnsubscribe (solClient_opaqueSession_pt opaqueSession_p,
 #                                        const char *topicSubscription_p);
 #
@@ -617,6 +650,27 @@ def solClient_session_topicUnsubscribe(opaqueSession_p, topicSubscription_p):
     ]
     if _solClient.solClient_session_topicUnsubscribe(
             opaqueSession_p,
+            c_char_p(topicSubscription_p.encode('utf-8'))
+    ) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+#  solClient_dllExport solClient_returnCode_t
+#    solClient_session_topicUnsubscribeExt (solClient_opaqueSession_pt opaqueSession_p,
+#                                        solClient_subscribeFlags_t flags,
+#                                        const char *topicSubscription_p);
+#
+def solClient_session_topicUnsubscribeExt(opaqueSession_p, flags, topicSubscription_p):
+    _solClient.solClient_session_topicUnsubscribeExt.restype = solClient_returnCode_t
+    _solClient.solClient_session_topicUnsubscribeExt.argtypes = [
+        solClient_opaqueSession_pt,
+        solClient_subscribeFlags_t,
+        c_char_p
+    ]
+    if _solClient.solClient_session_topicUnsubscribeExt(
+            opaqueSession_p,
+            flags,
             c_char_p(topicSubscription_p.encode('utf-8'))
     ) != SOLCLIENT_OK:
         _logAndRaiseError()
