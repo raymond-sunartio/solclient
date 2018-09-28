@@ -2,6 +2,7 @@ import logging
 import logging.config
 import settings
 from solclient import solclient
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,22 @@ def main():
     logger.debug('connecting solClient session...')
     solclient.solClient_session_connect(session_p)
     logger.info('solClient session connected')
+
+    topic = 'some_topic'
+    logger.debug('subscribing to solClient topic [{}]...'.format(topic))
+    solclient.solClient_session_topicSubscribe(session_p, topic)
+    logger.info('subscribed to solClient topic [{}]'.format(topic))
+
+    while True:
+        try:
+            time.sleep(100)
+        except KeyboardInterrupt:
+            logger.debug("KeyboardInterrupt detected")
+            break
+
+    logger.debug('UNsubscribing to solClient topic [{}]...'.format(topic))
+    solclient.solClient_session_topicUnsubscribe(session_p, topic)
+    logger.info('UNsubscribed to solClient topic [{}]'.format(topic))
 
     logger.debug('disconnecting solClient session...')
     solclient.solClient_session_disconnect(session_p)
