@@ -3,6 +3,8 @@ import inspect
 import logging
 import os
 
+__author__ = "Raymond Sunartio"
+
 logger = logging.getLogger(__name__)
 
 #
