@@ -3,19 +3,21 @@ import inspect
 import logging
 import os
 
-__author__ = "Raymond Sunartio"
+from solclient import _solClient
+
+__author__ = 'Raymond Sunartio'
 
 logger = logging.getLogger(__name__)
 
 #
 # The solclient library
 #
-if os.name == 'nt':
-    _solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
-elif os.name == 'posix':
-    _solClient = cdll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/lib/libsolclient.so')
-else:
-    raise RuntimeError('OS \'{}\' not supported'.format(os.name))
+#if os.name == 'nt':
+#    _solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
+#elif os.name == 'posix':
+#    _solClient = cdll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/lib/libsolclient.so')
+#else:
+#    raise RuntimeError('OS \'{}\' not supported'.format(os.name))
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */

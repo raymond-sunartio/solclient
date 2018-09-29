@@ -5,6 +5,7 @@ import settings
 import time
 
 from solclient import solClient
+from solclient import solClientMsg
 
 logger = logging.getLogger(__name__)
 
@@ -13,8 +14,9 @@ logger = logging.getLogger(__name__)
 # messageReceiveCallback
 #
 def messageReceiveCallback(opaqueSession_p, msg_p, user_p):
-    logger.debug('messageReceiveCallback called')
-    return 0
+    logger.debug('message received:')
+    solClientMsg.solClient_msg_dump(msg_p, None, 0)
+    return solClient.SOLCLIENT_CALLBACK_OK
 
 
 #
@@ -29,7 +31,7 @@ def eventCallback(opaqueSession_p, eventInfo_p, user_p):
         subCodeStr,
         eventInfo.info_p
     ))
-    return 0
+    return solClient.SOLCLIENT_CALLBACK_OK
 
 
 #
