@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def messageReceiveCallback(opaqueSession_p, msg_p, user_p):
     logger.debug('message received:')
     solClientMsg.solClient_msg_dump(msg_p, None, 0)
-    return solClient.SOLCLIENT_CALLBACK_OK
+    return solClient.SOLCLIENT_CALLBACK_OK.value
 
 
 #
@@ -31,7 +31,7 @@ def eventCallback(opaqueSession_p, eventInfo_p, user_p):
         subCodeStr,
         eventInfo.info_p
     ))
-    return solClient.SOLCLIENT_CALLBACK_OK
+    return solClient.SOLCLIENT_CALLBACK_OK.value
 
 
 #

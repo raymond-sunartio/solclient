@@ -27,3 +27,20 @@ def solClient_msg_dump(msg_p, buffer_p, bufferSize):
     ]
     if _solClient.solClient_msg_dump(msg_p, buffer_p, bufferSize) != SOLCLIENT_OK:
         _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_returnCode_t
+# solClient_msg_getBinaryAttachmentPtr(solClient_opaqueMsg_pt msg_p,
+#                              solClient_opaquePointer_pt bufPtr_p,
+#                              solClient_uint32_t         *size_p);
+#
+def solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p):
+    _solClient.solClient_msg_getBinaryAttachmentPtr.restype = solClient_returnCode_t
+    _solClient.solClient_msg_getBinaryAttachmentPtr.argtypes = [
+        solClient_opaqueMsg_pt,
+        solClient_opaquePointer_pt,
+        solClient_uint32_t
+    ]
+    if _solClient.solClient_msg_getBinaryAttachmentPtr(msg_p, byref(bufPtr_p), byref(size_p)) != SOLCLIENT_OK:
+        _logAndRaiseError()

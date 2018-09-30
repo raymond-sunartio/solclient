@@ -10,14 +10,31 @@ __author__ = 'Raymond Sunartio'
 logger = logging.getLogger(__name__)
 
 #
-# The solclient library
+# typedef unsigned char  solClient_uint8_t;          /**< 8-bit unsigned integer type. */
+# typedef signed char    solClient_int8_t;           /**< 8-bit signed integer type. */
+# typedef unsigned short solClient_uint16_t;         /**< 16-bit unsigned integer type. */
+# typedef short          solClient_int16_t;          /**< 16-bit signed integer type. */
+# typedef unsigned char  solClient_bool_t;           /**< Boolean type (non-zero is true, 0 is false) .*/
 #
-#if os.name == 'nt':
-#    _solClient = windll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/bin/Win64/libsolclient.dll')
-#elif os.name == 'posix':
-#    _solClient = cdll.LoadLibrary(os.path.dirname(os.path.realpath(__file__)) + '/solclient-7.5.0.7/lib/libsolclient.so')
-#else:
-#    raise RuntimeError('OS \'{}\' not supported'.format(os.name))
+# #if UINT_MAX == 0xffffffff
+#   typedef int solClient_int32_t;                   /**< 32-bit signed integer type. */
+#   typedef unsigned int solClient_uint32_t;         /**< 32-bit unsigned integer type. */
+# #elif ULONG_MAX == 0xffffffff
+#   typedef long solClient_int32_t;                  /**< 32-bit signed integer type. */
+#   typedef unsigned long solClient_uint32_t;        /**< 32-bit unsigned integer type. */
+# #else
+# #   error Problem with 32-bit types.
+# #endif
+#
+solClient_uint8_t = c_ubyte
+solClient_int8_t = c_byte
+solClient_uint16_t = c_ushort
+solClient_int16_t = c_short
+solClient_uint32_t = c_ulong
+solClient_int32_t = c_long
+solClient_uint64_t = c_ulonglong
+solClient_int64_t = c_longlong
+solClient_bool_t = c_bool
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */
@@ -222,11 +239,11 @@ solClient_fd_t = c_int
 #  typedef solClient_uint64_t solClient_msgId_t;                /**< A unique msgId assigned to each Persistent and Non-Persistent message. */
 #  typedef solClient_uint32_t solClient_modifyPropFlags_t;      /**< A set of \ref modifypropflags "flags" that can be provided to a solClient_session_modifyClientInfo() call. */
 #
-solClient_fdEvent_t = c_ulong
-solClient_subscribeFlags_t = c_ulong
-solClient_session_responseCode_t = c_ulong
-solClient_msgId_t = c_ulonglong
-solClient_modifyPropFlags_t = c_ulong
+solClient_fdEvent_t = solClient_uint32_t
+solClient_subscribeFlags_t = solClient_uint32_t
+solClient_session_responseCode_t = solClient_uint32_t
+solClient_msgId_t = solClient_uint64_t
+solClient_modifyPropFlags_t = solClient_uint32_t
 
 #
 # #define SOLCLIENT_SESSION_PROP_HOST                          "SESSION_HOST"     /**< The IP address (or host name) to connect to. @ref host-list "Multiple entries" (up to ::SOLCLIENT_SESSION_PROP_MAX_HOSTS) are allowed, separated by commas. @ref host-entry "The entry for the SOLCLIENT_SESSION_PROP_HOST property should provide a protocol, host, and port". See @ref host-list "Configuring Multiple Hosts for Redundancy and Failover" for a discussion of Guaranteed Messaging considerations. May be set as an environment variable (See @ref SessionProps). Default: ::SOLCLIENT_SESSION_PROP_DEFAULT_HOST */
