@@ -104,7 +104,7 @@ def main():
     logger.info('solClient session connected')
 
     logger.debug('subscribing to solClient topic [{}]...'.format(args.topic))
-    solClient.solClient_session_topicSubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic))
+    solClient.solClient_session_topicSubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic.encode('utf-8')))
     logger.info('subscribed to solClient topic [{}]'.format(args.topic))
 
     while True:
@@ -115,7 +115,7 @@ def main():
             break
 
     logger.debug('UNsubscribing to solClient topic [{}]...'.format(args.topic))
-    solClient.solClient_session_topicUnsubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic))
+    solClient.solClient_session_topicUnsubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic.encode('utf-8')))
     logger.info('UNsubscribed to solClient topic [{}]'.format(args.topic))
 
     logger.debug('disconnecting solClient session...')

@@ -25,7 +25,7 @@ def solClient_msg_dump(msg_p, buffer_p, bufferSize):
         c_char_p,
         c_size_t
     ]
-    if _solClient.solClient_msg_dump(msg_p, buffer_p, bufferSize) != SOLCLIENT_OK:
+    if _solClient.solClient_msg_dump(msg_p, buffer_p, bufferSize) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -40,7 +40,7 @@ def solClient_msg_getBinaryAttachmentMap(msg_p, map_p):
         solClient_opaqueMsg_pt,
         POINTER(solClient_opaqueContainer_pt)
     ]
-    if _solClient.solClient_msg_getBinaryAttachmentMap(msg_p, map_p) != SOLCLIENT_OK:
+    if _solClient.solClient_msg_getBinaryAttachmentMap(msg_p, map_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -57,7 +57,7 @@ def solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p):
         solClient_opaquePointer_pt,
         solClient_uint32_t
     ]
-    if _solClient.solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p) != SOLCLIENT_OK:
+    if _solClient.solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -76,5 +76,5 @@ def solClient_container_getByteArray(container_p, array_p, arrayLength_p, name):
         solClient_uint32_t,
         c_char_p
     ]
-    if _solClient.solClient_container_getByteArray(container_p, array_p, arrayLength_p, name) != SOLCLIENT_OK:
+    if _solClient.solClient_container_getByteArray(container_p, array_p, arrayLength_p, name) != SOLCLIENT_OK.value:
         _logAndRaiseError()
