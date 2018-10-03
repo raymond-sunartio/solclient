@@ -1,3 +1,4 @@
+from ctypes import *
 import argparse
 import logging
 import logging.config
@@ -35,6 +36,24 @@ def eventCallback(opaqueSession_p, eventInfo_p, user_p):
 
 
 #
+# dict2solClient_propertyArray_pt
+#
+def dict2solClient_propertyArray_pt(d):
+    propCount = len(d.keys())
+    props = (c_char_p * (2 * propCount + 1))()
+    index = 0
+    for item in d.items():
+        props[index] = c_char_p(item[0].encode('utf-8'))
+        logger.debug('props[{}]={}'.format(index, props[index]))
+        index += 1
+        props[index] = c_char_p(item[1].encode('utf-8'))
+        logger.debug('props[{}]={}'.format(index, props[index]))
+        index += 1
+    props[index] = c_char_p(None)
+    return props
+
+
+#
 # main()
 #
 def main():
@@ -54,8 +73,9 @@ def main():
     contextFuncInfo = solClient.SOLCLIENT_CONTEXT_CREATEFUNC_INITIALIZER
     solClient.solClient_context_create(
         solClient.SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD,
-        context_p,
-        contextFuncInfo
+        byref(context_p),
+        byref(contextFuncInfo),
+        sizeof(contextFuncInfo)
     )
     logger.info('solClient context created')
 
@@ -71,10 +91,11 @@ def main():
     sessionFuncInfo.rxMsgInfo.callback_p = solClient.solClient_session_rxMsgCallbackFunc_t(messageReceiveCallback)
     sessionFuncInfo.eventInfo.callback_p = solClient.solClient_session_eventCallbackFunc_t(eventCallback)
     solClient.solClient_session_create(
-        sessionProps,
+        dict2solClient_propertyArray_pt(sessionProps),
         context_p,
-        session_p,
-        sessionFuncInfo
+        byref(session_p),
+        byref(sessionFuncInfo),
+        sizeof(sessionFuncInfo)
     )
     logger.info('solClient session created')
 
@@ -83,7 +104,7 @@ def main():
     logger.info('solClient session connected')
 
     logger.debug('subscribing to solClient topic [{}]...'.format(args.topic))
-    solClient.solClient_session_topicSubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, args.topic)
+    solClient.solClient_session_topicSubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic))
     logger.info('subscribed to solClient topic [{}]'.format(args.topic))
 
     while True:
@@ -94,7 +115,7 @@ def main():
             break
 
     logger.debug('UNsubscribing to solClient topic [{}]...'.format(args.topic))
-    solClient.solClient_session_topicUnsubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, args.topic)
+    solClient.solClient_session_topicUnsubscribeExt(session_p, solClient.SOLCLIENT_SUBSCRIBE_FLAGS_WAITFORCONFIRM, c_char_p(args.topic))
     logger.info('UNsubscribed to solClient topic [{}]'.format(args.topic))
 
     logger.debug('disconnecting solClient session...')

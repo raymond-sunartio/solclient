@@ -19,9 +19,9 @@ To use kerberos authentication, set the following session properties when creati
     ...
     
     solClient.solClient_session_create(
-        sessionProps,
+        dict2solClient_propertyArray_pt(sessionProps),
         context_p,
-        session_p,
+        session_p:memoryview,
         sessionFuncInfo
     )
 ```

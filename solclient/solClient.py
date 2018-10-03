@@ -79,7 +79,7 @@ solClient_propertyArray_pt = POINTER(c_char_p)
 #    SOLCLIENT_FAIL = -1         /**< The API call failed. */
 #  } solClient_returnCode_t;     /**< The type for API return codes. */
 #
-solClient_returnCode_t = int
+solClient_returnCode_t = c_int
 (
     SOLCLIENT_FAIL,
     SOLCLIENT_OK,
@@ -529,7 +529,7 @@ def solClient_initialize(initialLogLevel=SOLCLIENT_LOG_DEFAULT_FILTER, props=Non
         solClient_log_level_t,
         solClient_propertyArray_pt
     ]
-    if _solClient.solClient_initialize(initialLogLevel, props) != SOLCLIENT_OK:
+    if _solClient.solClient_initialize(initialLogLevel, props) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -540,7 +540,7 @@ def solClient_initialize(initialLogLevel=SOLCLIENT_LOG_DEFAULT_FILTER, props=Non
 #                              solClient_context_createFuncInfo_t * funcInfo_p,
 #                              size_t funcInfoSize);
 #
-def solClient_context_create(props, opaqueContext_p, funcInfo_p):
+def solClient_context_create(props, opaqueContext_p, funcInfo_p, funcInfoSize):
     _solClient.solClient_context_create.restype = solClient_returnCode_t
     _solClient.solClient_context_create.argtypes = [
         solClient_propertyArray_pt,
@@ -548,23 +548,7 @@ def solClient_context_create(props, opaqueContext_p, funcInfo_p):
         POINTER(solClient_context_createFuncInfo_t),
         c_size_t
     ]
-
-    if type(props) is dict:
-        propsCount = len(props.keys())
-        _props = (c_char_p * (2 * propsCount + 1))()
-        index = 0
-        for item in props.items():
-            _props[index] = c_char_p(item[0].encode('utf-8'))
-            logger.debug('_props[{}]={}'.format(index, _props[index]))
-            index += 1
-            _props[index] = c_char_p(item[1].encode('utf-8'))
-            logger.debug('_props[{}]={}'.format(index, _props[index]))
-            index += 1
-        _props[index] = c_char_p(None)
-    else:
-        _props = props
-
-    if _solClient.solClient_context_create(_props, byref(opaqueContext_p), byref(funcInfo_p), sizeof(funcInfo_p)) != SOLCLIENT_OK:
+    if _solClient.solClient_context_create(props, opaqueContext_p, funcInfo_p, funcInfoSize) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -576,7 +560,7 @@ def solClient_context_create(props, opaqueContext_p, funcInfo_p):
 #                              solClient_session_createFuncInfo_t * funcInfo_p,
 #                              size_t funcInfoSize);
 #
-def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p):
+def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p, funcInfoSize):
     _solClient.solClient_session_create.restype = solClient_returnCode_t
     _solClient.solClient_session_create.argtypes = [
         solClient_propertyArray_pt,
@@ -585,23 +569,7 @@ def solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p
         POINTER(solClient_session_createFuncInfo_t),
         c_size_t
     ]
-
-    if type(props) is dict:
-        propsCount = len(props.keys())
-        _props = (c_char_p * (2 * propsCount + 1))()
-        index = 0
-        for item in props.items():
-            _props[index] = c_char_p(item[0].encode('utf-8'))
-            logger.debug('_props[{}]={}'.format(index, _props[index]))
-            index += 1
-            _props[index] = c_char_p(item[1].encode('utf-8'))
-            logger.debug('_props[{}]={}'.format(index, _props[index]))
-            index += 1
-        _props[index] = c_char_p(None)
-    else:
-        _props = props
-
-    if _solClient.solClient_session_create(_props, opaqueContext_p, byref(opaqueSession_p), byref(funcInfo_p), sizeof(funcInfo_p)) != SOLCLIENT_OK:
+    if _solClient.solClient_session_create(props, opaqueContext_p, opaqueSession_p, funcInfo_p, funcInfoSize) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -614,7 +582,7 @@ def solClient_session_connect(opaqueSession_p):
     _solClient.solClient_session_connect.argtypes = [
         solClient_opaqueSession_pt
     ]
-    if _solClient.solClient_session_connect(opaqueSession_p) != SOLCLIENT_OK:
+    if _solClient.solClient_session_connect(opaqueSession_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -629,10 +597,7 @@ def solClient_session_topicSubscribe(opaqueSession_p, topicSubscription_p):
         solClient_opaqueSession_pt,
         c_char_p
     ]
-    if _solClient.solClient_session_topicSubscribe(
-            opaqueSession_p,
-            c_char_p(topicSubscription_p.encode('utf-8'))
-    ) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicSubscribe(opaqueSession_p, topicSubscription_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -650,11 +615,7 @@ def solClient_session_topicSubscribeExt(opaqueSession_p, flags, topicSubscriptio
         solClient_subscribeFlags_t,
         c_char_p
     ]
-    if _solClient.solClient_session_topicSubscribeExt(
-            opaqueSession_p,
-            flags,
-            c_char_p(topicSubscription_p.encode('utf-8'))
-    ) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicSubscribeExt(opaqueSession_p, flags, topicSubscription_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -669,10 +630,7 @@ def solClient_session_topicUnsubscribe(opaqueSession_p, topicSubscription_p):
         solClient_opaqueSession_pt,
         c_char_p
     ]
-    if _solClient.solClient_session_topicUnsubscribe(
-            opaqueSession_p,
-            c_char_p(topicSubscription_p.encode('utf-8'))
-    ) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicUnsubscribe(opaqueSession_p, topicSubscription_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -689,11 +647,7 @@ def solClient_session_topicUnsubscribeExt(opaqueSession_p, flags, topicSubscript
         solClient_subscribeFlags_t,
         c_char_p
     ]
-    if _solClient.solClient_session_topicUnsubscribeExt(
-            opaqueSession_p,
-            flags,
-            c_char_p(topicSubscription_p.encode('utf-8'))
-    ) != SOLCLIENT_OK:
+    if _solClient.solClient_session_topicUnsubscribeExt(opaqueSession_p, flags, topicSubscription_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -706,7 +660,7 @@ def solClient_session_disconnect(opaqueSession_p):
     _solClient.solClient_session_disconnect.argtypes = [
         solClient_opaqueSession_pt
     ]
-    if _solClient.solClient_session_disconnect(opaqueSession_p) != SOLCLIENT_OK:
+    if _solClient.solClient_session_disconnect(opaqueSession_p) != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -715,7 +669,7 @@ def solClient_session_disconnect(opaqueSession_p):
 #
 def solClient_cleanup():
     _solClient.solClient_cleanup.restype = solClient_returnCode_t
-    if _solClient.solClient_cleanup() != SOLCLIENT_OK:
+    if _solClient.solClient_cleanup() != SOLCLIENT_OK.value:
         _logAndRaiseError()
 
 
@@ -724,4 +678,3 @@ def solClient_cleanup():
 # #define SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD ((solClient_propertyArray_pt )_solClient_contextPropsDefaultWithCreateThread) /**< Use with ::solClient_context_create() to create a Context in which the automatic Context thread is automatically created and all other properties are set with default values. */
 #
 SOLCLIENT_CONTEXT_PROPS_DEFAULT_WITH_CREATE_THREAD = pointer(c_char_p.in_dll(_solClient, '_solClient_contextPropsDefaultWithCreateThread'))
-

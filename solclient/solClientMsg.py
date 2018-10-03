@@ -31,6 +31,21 @@ def solClient_msg_dump(msg_p, buffer_p, bufferSize):
 
 #
 # solClient_dllExport solClient_returnCode_t
+# solClient_msg_getBinaryAttachmentMap(solClient_opaqueMsg_pt msg_p,
+#                             solClient_opaqueContainer_pt     *map_p);
+#
+def solClient_msg_getBinaryAttachmentMap(msg_p, map_p):
+    _solClient.solClient_msg_getBinaryAttachmentMap.restype = solClient_returnCode_t
+    _solClient.solClient_msg_getBinaryAttachmentMap.argtypes = [
+        solClient_opaqueMsg_pt,
+        POINTER(solClient_opaqueContainer_pt)
+    ]
+    if _solClient.solClient_msg_getBinaryAttachmentMap(msg_p, map_p) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_returnCode_t
 # solClient_msg_getBinaryAttachmentPtr(solClient_opaqueMsg_pt msg_p,
 #                              solClient_opaquePointer_pt bufPtr_p,
 #                              solClient_uint32_t         *size_p);
@@ -42,5 +57,24 @@ def solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p):
         solClient_opaquePointer_pt,
         solClient_uint32_t
     ]
-    if _solClient.solClient_msg_getBinaryAttachmentPtr(msg_p, byref(bufPtr_p), byref(size_p)) != SOLCLIENT_OK:
+    if _solClient.solClient_msg_getBinaryAttachmentPtr(msg_p, bufPtr_p, size_p) != SOLCLIENT_OK:
+        _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_returnCode_t
+# solClient_container_getByteArray (solClient_opaqueContainer_pt container_p,
+#                        solClient_uint8_t          *array_p,
+#                        solClient_uint32_t         *arrayLength_p,
+#                        const char                 *name);
+#
+def solClient_container_getByteArray(container_p, array_p, arrayLength_p, name):
+    _solClient.solClient_container_getByteArray.restype = solClient_returnCode_t
+    _solClient.solClient_container_getByteArray.argtypes = [
+        solClient_opaqueContainer_pt,
+        solClient_uint8_t,
+        solClient_uint32_t,
+        c_char_p
+    ]
+    if _solClient.solClient_container_getByteArray(container_p, array_p, arrayLength_p, name) != SOLCLIENT_OK:
         _logAndRaiseError()
