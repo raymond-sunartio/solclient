@@ -78,3 +78,22 @@ def solClient_container_getByteArray(container_p, array_p, arrayLength_p, name):
     ]
     if _solClient.solClient_container_getByteArray(container_p, array_p, arrayLength_p, name) != SOLCLIENT_OK.value:
         _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_returnCode_t
+# solClient_container_getString (solClient_opaqueContainer_pt container_p,
+#                        char                       *string,
+#                        size_t                      size,
+#                        const char                 *name);
+#
+def solClient_container_getString(container_p, string, size, name):
+    _solClient.solClient_container_getString.restype = solClient_returnCode_t
+    _solClient.solClient_container_getString.argtypes = [
+        solClient_opaqueContainer_pt,
+        c_char_p,
+        size_t,
+        c_char_p
+    ]
+    if _solClient.solClient_container_getString(container_p, string, size, name) != SOLCLIENT_OK.value:
+        _logAndRaiseError()
