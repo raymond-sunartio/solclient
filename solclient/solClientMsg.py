@@ -72,8 +72,8 @@ def solClient_container_getByteArray(container_p, array_p, arrayLength_p, name):
     _solClient.solClient_container_getByteArray.restype = solClient_returnCode_t
     _solClient.solClient_container_getByteArray.argtypes = [
         solClient_opaqueContainer_pt,
-        solClient_uint8_t,
-        solClient_uint32_t,
+        POINTER(solClient_uint8_t),
+        POINTER(solClient_uint32_t),
         c_char_p
     ]
     if _solClient.solClient_container_getByteArray(container_p, array_p, arrayLength_p, name) != SOLCLIENT_OK.value:
