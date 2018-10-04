@@ -92,7 +92,7 @@ def solClient_container_getString(container_p, string, size, name):
     _solClient.solClient_container_getString.argtypes = [
         solClient_opaqueContainer_pt,
         c_char_p,
-        size_t,
+        c_size_t,
         c_char_p
     ]
     if _solClient.solClient_container_getString(container_p, string, size, name) != SOLCLIENT_OK.value:
