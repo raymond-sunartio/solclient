@@ -97,3 +97,53 @@ def solClient_container_getString(container_p, string, size, name):
     ]
     if _solClient.solClient_container_getString(container_p, string, size, name) != SOLCLIENT_OK.value:
         _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_bool_t
+# solClient_container_hasNextField (solClient_opaqueContainer_pt container_p);
+#
+def solClient_container_hasNextField(container_p):
+    _solClient.solClient_container_hasNextField.restype = solClient_bool_t
+    _solClient.solClient_container_hasNextField.argtypes = [
+        solClient_opaqueContainer_pt
+    ]
+    return _solClient.solClient_container_hasNextField(container_p)
+
+
+#
+# solClient_dllExport solClient_returnCode_t
+# solClient_container_getNextField (solClient_opaqueContainer_pt container_p,
+#                                   solClient_field_t       *field_p,
+#                                   size_t                   fieldSize,
+#                                   const char *            *name_p);
+#
+def solClient_container_getNextField(container_p, field_p, fieldSize, name_p):
+    _solClient.solClient_container_getNextField.restype = solClient_returnCode_t
+    _solClient.solClient_container_getNextField.argtypes = [
+        solClient_opaqueContainer_pt,
+        POINTER(solClient_field_t),
+        c_size_t,
+        POINTER(c_char_p)
+    ]
+    if _solClient.solClient_container_getNextField(container_p, field_p, fieldSize, name_p) != SOLCLIENT_OK.value:
+        _logAndRaiseError()
+
+
+#
+# solClient_dllExport solClient_returnCode_t
+# solClient_container_getField (solClient_opaqueContainer_pt container_p,
+#                        solClient_field_t           *value,
+#                        size_t                       fieldSize,
+#                        const char                  *name);
+#
+def solClient_container_getField(container_p, value, fieldSize, name):
+    _solClient.solClient_container_getField.restype = solClient_returnCode_t
+    _solClient.solClient_container_getField.argtypes = [
+        solClient_opaqueContainer_pt,
+        POINTER(solClient_field_t),
+        c_size_t,
+        c_char_p
+    ]
+    if _solClient.solClient_container_getField(container_p, value, fieldSize, name) != SOLCLIENT_OK.value:
+        _logAndRaiseError()

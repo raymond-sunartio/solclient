@@ -35,6 +35,7 @@ solClient_int32_t = c_long
 solClient_uint64_t = c_ulonglong
 solClient_int64_t = c_longlong
 solClient_bool_t = c_bool
+solClient_wchar_t = c_wchar
 
 #
 # typedef void  *solClient_opaqueContext_pt;   /**< An opaque pointer to a processing Context. */
@@ -79,7 +80,7 @@ solClient_propertyArray_pt = POINTER(c_char_p)
 #    SOLCLIENT_FAIL = -1         /**< The API call failed. */
 #  } solClient_returnCode_t;     /**< The type for API return codes. */
 #
-solClient_returnCode_t = c_int
+solClient_returnCode_t = c_int32
 (
     SOLCLIENT_FAIL,
     SOLCLIENT_OK,
@@ -106,7 +107,7 @@ solClient_returnCode_t = c_int
 #    SOLCLIENT_LOG_DEBUG = 7      /**< Debugging information generally useful to API developers (very verbose). */
 #  } solClient_log_level_t;       /**< Type for log levels. */
 #
-solClient_log_level_t = c_int
+solClient_log_level_t = c_int32
 (
     SOLCLIENT_LOG_EMERGENCY,
     SOLCLIENT_LOG_ALERT,
@@ -152,7 +153,7 @@ SOLCLIENT_LOG_DEFAULT_FILTER = SOLCLIENT_LOG_NOTICE
 #    SOLCLIENT_SESSION_EVENT_REPUBLISH_UNACKED_MESSAGES = 20  /**< After successfully reconnecting a disconnected session, the SDK received an unknown publisher flow name response when reconnecting the GD publisher flow. If configured to auto-retry (See ::SOLCLIENT_SESSION_PROP_GD_RECONNECT_FAIL_ACTION.) this event is generated to indicate how many unacknowledged messages are retransmitted on success. As the publisher state has been lost on failover, receiving this event may indicate that some messages have been duplicated in the system.*/
 #  } solClient_session_event_t;                          /**< Type for Session events. */
 #
-solClient_session_event_t = c_int
+solClient_session_event_t = c_int32
 (
     SOLCLIENT_SESSION_EVENT_UP_NOTICE,
     SOLCLIENT_SESSION_EVENT_DOWN_ERROR,
@@ -189,7 +190,7 @@ solClient_session_event_t = c_int
 #    SOLCLIENT_FLOW_EVENT_INACTIVE           = 6    /**< The flow has become inactive */
 #  } solClient_flow_event_t;                        /**< Type for Flow events. */
 #
-solClient_flow_event_t = c_int
+solClient_flow_event_t = c_int32
 (
      SOLCLIENT_FLOW_EVENT_UP_NOTICE,
      SOLCLIENT_FLOW_EVENT_DOWN_ERROR,
@@ -206,7 +207,7 @@ solClient_flow_event_t = c_int
 #    SOLCLIENT_CALLBACK_TAKE_MSG = 1  /**< The application is keeping the rxMsg, and it must not be released or reused by the API .*/
 #  } solClient_rxMsgCallback_returnCode_t;
 #
-solClient_rxMsgCallback_returnCode_t = c_int
+solClient_rxMsgCallback_returnCode_t = c_int32
 (
      SOLCLIENT_CALLBACK_OK,
      SOLCLIENT_CALLBACK_TAKE_MSG
@@ -230,7 +231,7 @@ SOLCLIENT_SUBSCRIBE_FLAGS_REQUEST_CONFIRM = 16
 #   typedef int solClient_fd_t;       /**< Type for a file descriptor. */
 # #endif
 #
-solClient_fd_t = c_int
+solClient_fd_t = c_int32
 
 #
 #  typedef solClient_uint32_t solClient_fdEvent_t;              /**< A mask of events that can be requested for a file descriptor. */
@@ -452,12 +453,155 @@ SOLCLIENT_SESSION_CREATEFUNC_INITIALIZER = solClient_session_createFuncInfo_t(
 )
 
 #
+# typedef enum solClient_destinationType
+# {
+#     SOLCLIENT_NULL_DESTINATION          = -1,
+#     SOLCLIENT_TOPIC_DESTINATION         = 0,
+#     SOLCLIENT_QUEUE_DESTINATION         = 1,
+#     SOLCLIENT_TOPIC_TEMP_DESTINATION    = 2,
+#     SOLCLIENT_QUEUE_TEMP_DESTINATION    = 3
+# } solClient_destinationType_t;
+#
+solClient_destinationType_t = c_int32
+(
+    SOLCLIENT_NULL_DESTINATION,
+    SOLCLIENT_TOPIC_DESTINATION,
+    SOLCLIENT_QUEUE_DESTINATION,
+    SOLCLIENT_TOPIC_TEMP_DESTINATION,
+    SOLCLIENT_QUEUE_TEMP_DESTINATION
+) = map(solClient_destinationType_t, range(-1, 4, 1))
+
+
+#
+# typedef struct solClient_destination
+# {
+#     solClient_destinationType_t         destType; /**< The type of destination. */
+#     const char *                        dest;     /**< The name of the destination (as a NULL-terminated UTF-8 string). */
+# } solClient_destination_t;
+#
+class solClient_destination_t(Structure):
+    _fields_ = [
+        ('destType', solClient_destinationType_t),
+        ('dest', c_char_p)
+    ]
+
+
+#
+# typedef enum solClient_fieldType
+# {
+#     SOLCLIENT_BOOL      = 0,    /**< Boolean. */
+#     SOLCLIENT_UINT8     = 1,    /**< 8-bit unsigned integer. */
+#     SOLCLIENT_INT8      = 2,    /**< 8-bit signed integer. */
+#     SOLCLIENT_UINT16    = 3,    /**< 16-bit unsigned integer. */
+#     SOLCLIENT_INT16     = 4,    /**< 16-bit signed integer. */
+#     SOLCLIENT_UINT32    = 5,    /**< 32-bit unsigned integer. */
+#     SOLCLIENT_INT32     = 6,    /**< 32-bit signed integer. */
+#     SOLCLIENT_UINT64    = 7,    /**< 64-bit unsigned integer. */
+#     SOLCLIENT_INT64     = 8,    /**< 64-bit signed integer. */
+#     SOLCLIENT_WCHAR     = 9,   /**< 16-bit unicode character. */
+#     SOLCLIENT_STRING    = 10,   /**< Null terminated string, (ASCII or UTF-8). */
+#     SOLCLIENT_BYTEARRAY = 11,   /**< Byte array. */
+#     SOLCLIENT_FLOAT     = 12,   /**< 32-bit floating point number. */
+#     SOLCLIENT_DOUBLE    = 13,   /**< 64-bit floating point number. */
+#     SOLCLIENT_MAP       = 14,   /**< Solace Map (container class). */
+#     SOLCLIENT_STREAM    = 15,   /**< Solace Stream (container class). */
+#     SOLCLIENT_NULL      = 16,   /**< NULL field.*/
+#     SOLCLIENT_DESTINATION = 17, /**< Destination field. */
+#     SOLCLIENT_SMF       = 18,   /**< A complete Solace Message Format (SMF) message is encapsulated in the container. */
+#     SOLCLIENT_UNKNOWN   = -1    /**< A validly formatted, but unrecognized, data type was received. */
+# } solClient_fieldType_t;
+#
+solClient_fieldType_t = c_int32
+(
+    SOLCLIENT_UNKNOWN,
+    SOLCLIENT_BOOL,
+    SOLCLIENT_UINT8,
+    SOLCLIENT_INT8,
+    SOLCLIENT_UINT16,
+    SOLCLIENT_INT16,
+    SOLCLIENT_UINT32,
+    SOLCLIENT_INT32,
+    SOLCLIENT_UINT64,
+    SOLCLIENT_INT64,
+    SOLCLIENT_WCHAR,
+    SOLCLIENT_STRING,
+    SOLCLIENT_BYTEARRAY,
+    SOLCLIENT_FLOAT,
+    SOLCLIENT_DOUBLE,
+    SOLCLIENT_MAP,
+    SOLCLIENT_STREAM,
+    SOLCLIENT_NULL,
+    SOLCLIENT_DESTINATION,
+    SOLCLIENT_SMF
+) = map(solClient_fieldType_t, range(-1, 19, 1))
+
+
+#
+# typedef struct solClient_field {
+#     solClient_fieldType_t       type;
+#     solClient_uint32_t          length;
+#     union {
+#         solClient_bool_t        boolean;
+#         solClient_uint8_t       uint8;
+#         solClient_int8_t        int8;
+#         solClient_uint16_t      uint16;
+#         solClient_int16_t       int16;
+#         solClient_uint32_t      uint32;
+#         solClient_int32_t       int32;
+#         solClient_uint64_t      uint64;
+#         solClient_int64_t       int64;
+#         solClient_wchar_t       wchar;
+#         float                   float32;
+#         double                  float64;
+#         const char             *string;
+#         solClient_uint8_t      *bytearray;
+#         solClient_opaqueContainer_pt
+#                                 map;
+#         solClient_opaqueContainer_pt
+#                                 stream;
+#         solClient_destination_t dest;
+#         solClient_uint8_t      *smf;
+#         solClient_uint8_t      *unknownField;
+#     } value;
+# } solClient_field_t;
+#
+class solClient_field_t(Structure):
+    class _value(Union):
+        _fields_ = [
+            ('boolean', solClient_bool_t),
+            ('uint8', solClient_uint8_t),
+            ('int8', solClient_int8_t),
+            ('uint16', solClient_uint16_t),
+            ('int16', solClient_int16_t),
+            ('uint32', solClient_uint32_t),
+            ('int32', solClient_int32_t),
+            ('uint64', solClient_uint64_t),
+            ('int64', solClient_int64_t),
+            ('wchar', solClient_wchar_t),
+            ('float32', c_float),
+            ('float64', c_double),
+            ('string', c_char_p),
+            ('bytearray', POINTER(solClient_uint8_t)),
+            ('map', solClient_opaqueContainer_pt),
+            ('stream', solClient_opaqueContainer_pt),
+            ('dest', solClient_destination_t),
+            ('smf', POINTER(solClient_uint8_t)),
+            ('unknownField', POINTER(solClient_uint8_t))
+        ]
+    _fields_ = [
+        ('type', solClient_fieldType_t),
+        ('length', solClient_uint32_t),
+        ('value', _value)
+    ]
+
+
+#
 #  typedef enum solClient_subCode
 #  {
 #    ...
 #  } solClient_subCode_t;
 #
-solClient_subCode_t = c_int
+solClient_subCode_t = c_int32
 
 
 #
